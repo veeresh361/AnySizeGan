@@ -84,11 +84,12 @@ def getBatchDict(data,uniqueValueList,countDict):
         ) from error
 
 latent_dim=100
-# generator=GeneratorTwo().getGeneratorModel()
-# discriminator=Discriminator().getDiscriminatorModel()
-# d_optimizer = keras.optimizers.Adam(learning_rate=0.0003)
-# g_optimizer = keras.optimizers.Adam(learning_rate=0.0004)
-# loss_fn = keras.losses.BinaryCrossentropy(from_logits=True)
+generator=GeneratorTwo().getGeneratorModel()
+untrainedGenerator=GeneratorTwo().getGeneratorModel()
+discriminator=Discriminator().getDiscriminatorModel()
+d_optimizer = keras.optimizers.Adam(learning_rate=0.03)
+g_optimizer = keras.optimizers.Adam(learning_rate=0.04)
+loss_fn = keras.losses.BinaryCrossentropy(from_logits=True)
 tf.config.run_functions_eagerly(True)
 @tf.function
 def train_step(real_images):
@@ -106,7 +107,6 @@ def train_step(real_images):
     try:
         # Sample random points in the latent space
         random_latent_vectors = tf.random.normal(shape=(config.batch_size, latent_dim))#Dynamic batch size
-        print(random_latent_vectors.shape)
         # Decode them to fake images
         generated_images = generator(random_latent_vectors)
         # Combine them with real images
@@ -124,7 +124,6 @@ def train_step(real_images):
             predictions = discriminator(combined_images)
             d_loss = loss_fn(labels, predictions)
         grads = tape.gradient(d_loss, discriminator.trainable_weights)
-        print(grads)
         d_optimizer.apply_gradients(zip(grads, discriminator.trainable_weights))
 
         # Sample random points in the latent space
