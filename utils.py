@@ -87,8 +87,8 @@ latent_dim=100
 generator=GeneratorTwo().getGeneratorModel()
 untrainedGenerator=GeneratorTwo().getGeneratorModel()
 discriminator=Discriminator().getDiscriminatorModel()
-d_optimizer = keras.optimizers.Adam(learning_rate=0.03)
-g_optimizer = keras.optimizers.Adam(learning_rate=0.04)
+d_optimizer = keras.optimizers.Adam(learning_rate=0.0003)
+g_optimizer = keras.optimizers.Adam(learning_rate=0.0004)
 loss_fn = keras.losses.BinaryCrossentropy(from_logits=True)
 tf.config.run_functions_eagerly(True)
 @tf.function
@@ -103,45 +103,42 @@ def train_step(real_images):
         _type_: retun loss, accuracy and generated image by
         the generator
     """    
-    global batch_size
-    try:
-        # Sample random points in the latent space
-        random_latent_vectors = tf.random.normal(shape=(config.batch_size, latent_dim))#Dynamic batch size
-        # Decode them to fake images
-        generated_images = generator(random_latent_vectors)
-        # Combine them with real images
-        combined_images = tf.concat([generated_images, real_images], axis=0)
+    #global batch_size
+    # try:
+    # Sample random points in the latent space
+    random_latent_vectors = tf.random.normal(shape=(config.batch_size, 100))#Dynamic batch size
+    #print(random_latent_vectors.shape)
+    # Decode them to fake images
+    generated_images = generator(random_latent_vectors)
+    # Combine them with real images
+    #print(generated_images.shape)
+    combined_images = tf.concat([generated_images, real_images], axis=0)
 
-        # Assemble labels discriminating real from fake images
-        labels = tf.concat(
-            [tf.ones((config.batch_size, 1)), tf.zeros((real_images.shape[0], 1))], axis=0
-        )
-        # Add random noise to the labels - important trick!
-        labels += 0.05 * tf.random.uniform(labels.shape)
+    # Assemble labels discriminating real from fake images
+    labels = tf.concat(
+        [tf.ones((config.batch_size, 1)), tf.zeros((real_images.shape[0], 1))], axis=0
+    )
+    # Add random noise to the labels - important trick!
+    labels += 0.05 * tf.random.uniform(labels.shape)
 
-        # Train the discriminator
-        with tf.GradientTape() as tape:
-            predictions = discriminator(combined_images)
-            d_loss = loss_fn(labels, predictions)
-        grads = tape.gradient(d_loss, discriminator.trainable_weights)
-        d_optimizer.apply_gradients(zip(grads, discriminator.trainable_weights))
+    # Train the discriminator
+    with tf.GradientTape() as tape:
+        predictions = discriminator(combined_images)
+        d_loss = loss_fn(labels, predictions)
+    grads = tape.gradient(d_loss, discriminator.trainable_weights)
+    #print(grads)
+    d_optimizer.apply_gradients(zip(grads, discriminator.trainable_weights))
 
-        # Sample random points in the latent space
-        random_latent_vectors = tf.random.normal(shape=(config.batch_size, latent_dim))
-        # Assemble labels that say "all real images"
-        misleading_labels = tf.zeros((config.batch_size, 1))
+    # Sample random points in the latent space
+    random_latent_vectors = tf.random.normal(shape=(config.batch_size, 100))
+    # Assemble labels that say "all real images"
+    misleading_labels = tf.zeros((config.batch_size, 1))
 
-        # Train the generator (note that we should *not* update the weights
-        # of the discriminator)!
-        with tf.GradientTape() as tape:
-            predictions = discriminator(generator(random_latent_vectors))
-            g_loss = loss_fn(misleading_labels, predictions)
-        grads = tape.gradient(g_loss, generator.trainable_weights)
-        g_optimizer.apply_gradients(zip(grads, generator.trainable_weights))
-        return d_loss, g_loss, generated_images
-    except Exception as error:
-        logging.error(
-            "Error while traing the gan model")
-        raise Exception(
-            "Error occurred while training"
-        ) from error
+    # Train the generator (note that we should *not* update the weights
+    # of the discriminator)!
+    with tf.GradientTape() as tape:
+        predictions = discriminator(generator(random_latent_vectors))
+        g_loss = loss_fn(misleading_labels, predictions)
+    grads = tape.gradient(g_loss, generator.trainable_weights)
+    g_optimizer.apply_gradients(zip(grads, generator.trainable_weights))
+    return d_loss, g_loss, generated_images
