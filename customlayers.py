@@ -129,10 +129,10 @@ class ResidualLayerScal(Layer):
                fillter_size_mid=None, fillter_size_bot=None):
         
         super(ResidualLayerScal, self).__init__()
-        self.conv_top_1 = layers.Conv2D(256, (3, 3),
+        self.conv_top_1 = layers.Conv2D(512, (3, 3),
                                                  strides=(1, 1), padding='valid')
         # Make the hyperparameters different 
-        self.conv_top_2 =layers.Conv2D(128, (3, 3),strides=(1, 1), padding='valid')
+        self.conv_top_2 =layers.Conv2D(512, (3, 3),strides=(1, 1), padding='valid')
 
         self.batch_norm_top_1 = layers.BatchNormalization(axis=3)
         self.batch_norm_top_2 = layers.BatchNormalization(axis=3)
@@ -165,10 +165,10 @@ class ResidualLayerScalTwo(Layer):
                fillter_size_mid=None, fillter_size_bot=None):
         
         super(ResidualLayerScalTwo, self).__init__()
-        self.conv_top_1 = layers.Conv2D(64, (3, 3),
+        self.conv_top_1 = layers.Conv2D(256, (3, 3),
                                                  strides=(1, 1), padding='valid')
         # Make the hyperparameters different 
-        self.conv_top_2 =layers.Conv2D(32, (3, 3),strides=(1, 1), padding='valid')
+        self.conv_top_2 =layers.Conv2D(256, (3, 3),strides=(1, 1), padding='valid')
 
         #self.conv_top_3=layers.Conv2D(32, (1, 1),strides=(1, 1), padding='valid')
 
@@ -208,10 +208,10 @@ class ResidualLayerScalThree(Layer):
                fillter_size_mid=None, fillter_size_bot=None):
         
         super(ResidualLayerScalThree, self).__init__()
-        self.conv_top_1 = layers.Conv2D(16, (3, 3),
+        self.conv_top_1 = layers.Conv2D(128, (3, 3),
                                                  strides=(1, 1), padding='valid')
         # Make the hyperparameters different 
-        self.conv_top_2 =layers.Conv2D(3, (3, 3),strides=(1, 1), padding='valid')
+        self.conv_top_2 =layers.Conv2D(128, (3, 3),strides=(1, 1), padding='valid')
 
         #self.conv_top_3=layers.Conv2D(3, (1, 1),strides=(1, 1), padding='valid')
 
@@ -243,4 +243,5 @@ class ResidualLayerScalThree(Layer):
         #x = self.add_op([x_path_1,x_shortcut])
         ##PATH 2
         return x_path_1
+    
     
